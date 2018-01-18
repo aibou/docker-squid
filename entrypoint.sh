@@ -5,6 +5,9 @@ create_log_dir() {
   mkdir -p ${SQUID_LOG_DIR}
   chmod -R 755 ${SQUID_LOG_DIR}
   chown -R ${SQUID_USER}:${SQUID_USER} ${SQUID_LOG_DIR}
+  touch        ${SQUID_LOG_DIR}/access.log
+  chmod -R 644 ${SQUID_LOG_DIR}/access.log
+  chown -R ${SQUID_USER}:${SQUID_USER} ${SQUID_LOG_DIR}/access.log
 }
 
 create_cache_dir() {
@@ -39,7 +42,8 @@ if [[ -z ${1} ]]; then
     $(which squid3) -N -f /etc/squid3/squid.conf -z
   fi
   echo "Starting squid3..."
-  exec $(which squid3) -f /etc/squid3/squid.conf -NYCd 1 ${EXTRA_ARGS}
+  $(which squid3) -f /etc/squid3/squid.conf -NYCd 1 ${EXTRA_ARGS} &
+  /usr/bin/tail -f /var/log/squid3/access.log
 else
   exec "$@"
 fi
